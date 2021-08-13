@@ -1,0 +1,14 @@
+.DS_Store
+Resources
+build.log
+build
+npm-debug.log
+tmp
+.map
+.project
+.settings
+
+xcuserdata
+project.xcworkspace
+
+Thumbs.db

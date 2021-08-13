@@ -1,2 +1,1 @@
-titanium_modules_arm64_catalyst
-# titanium_modules_arm64_catalyst
+Titanium arm64 MacCatalyst Modules

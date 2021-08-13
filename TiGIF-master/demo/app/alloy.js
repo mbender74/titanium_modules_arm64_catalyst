@@ -1,0 +1,1 @@
+var test = require('com.enouvo.tigif');
