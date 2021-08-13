@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0.1
+apiversion: 2
+architectures: arm64 x86_64
+description: TiShimmer
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2019 by Your Company
+
+# these should not be edited
+name: TiShimmer
+moduleid: ti.shimmer
+guid: 52f0112f-2a35-4c17-bb30-8f7994b785b1
+platform: iphone
+minsdk: 9.3.2..GA 

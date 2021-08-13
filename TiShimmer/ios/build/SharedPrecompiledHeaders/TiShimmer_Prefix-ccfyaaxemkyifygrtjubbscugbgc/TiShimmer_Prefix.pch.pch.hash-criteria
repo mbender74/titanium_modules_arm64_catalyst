@@ -1,0 +1,28 @@
+-x
+objective-c
+-arch
+x86_64
+-std=c99
+-fobjc-arc
+-fpascal-strings
+-Os
+-DTI_VERSION=
+-DNDEBUG
+-DOBJC_OLD_DISPATCH_PROTOTYPES=1
+-isysroot
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator12.1.sdk
+-fasm-blocks
+-mios-simulator-version-min=8.0
+-g
+-fobjc-abi-version=2
+-fobjc-legacy-dispatch
+-iquote
+-iquote
+-I/Users/marcbender/Desktop/TiShimmer/ios/build/Release-iphonesimulator/include
+-I/Users/marcbender/Library/Application Support/Titanium/mobilesdk/osx/7.5.0.GA/iphone/include
+-F/Users/marcbender/Desktop/TiShimmer/ios/build/Release-iphonesimulator
+-DTI_POST_1_2
+x86_64-apple-darwin18.2.0
+"4.2.1 Compatible Apple LLVM 10.0.0 (clang-1000.11.45.5)"
+SDK_PRODUCT_BUILD_VERSION=16B91
+16B91
