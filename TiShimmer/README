@@ -74,18 +74,38 @@ and assets into the application.
 
 To use your module in code, you will need to require it.
 
-### ES6+ (recommended)
+
 
 ```js
-import MyModule from 'ti.shimmer';
-MyModule.foo();
-```
+var Shimmer = require('ti.shimmer');
 
-### ES5
 
-```js
-var MyModule = require('ti.shimmer');
-MyModule.foo();
+var contentView = Ti.UI.createView({
+			shimmering:true,
+			zIndex:10,
+			top:8,
+			bottom:8,
+			left: 12,
+			right: 12,
+			height: Ti.UI.SIZE
+}
+
+var realContent = Shimmer.createShimmerView({
+			shimmering:true,
+			shimmeringSpeed:400,
+			shimmeringPauseDuration:0.8,
+			shimmeringOpacity:0.5,
+			bubbleParent:true,
+			zIndex:-1,
+			height: Ti.UI.SIZE,
+			bottom:5,
+			layout:'vertical'
+});
+
+
+contentView.add(realContent);
+
+
 ```
 
 ## Testing
