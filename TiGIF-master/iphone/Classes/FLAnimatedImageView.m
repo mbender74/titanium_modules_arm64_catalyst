@@ -104,7 +104,7 @@
             if (super.image) {
                 // UIImageView's `setImage:` will internally call its layer's `setContentsTransform:` based on the `image.imageOrientation`.
                 // The `contentsTransform` will affect layer rendering rotation because the CGImage's bitmap buffer does not actually take rotation.
-                // However, when calling `setImage:nil`, this `contentsTransoforms` will not be reset to identity.
+                // However, when calling `setImage:nil`, this `contentsTransform` will not be reset to identity.
                 // Further animation frame will be rendered as rotated. So we must set it to the poster image to clear the previous state.
                 // See more here: https://github.com/Flipboard/FLAnimatedImage/issues/100
                 super.image = animatedImage.posterImage;
@@ -118,6 +118,8 @@
         } else {
             // Stop animating before the animated image gets cleared out.
             [self stopAnimating];
+            // Clear out the image.
+            super.image = nil;
         }
         
         _animatedImage = animatedImage;
@@ -221,7 +223,6 @@
     return intrinsicContentSize;
 }
 
-#pragma mark Smart Invert Colors
 
 #pragma mark - UIImageView Method Overrides
 #pragma mark Image Data
@@ -267,7 +268,7 @@
     }
 
     // Reverse to scale to get the value back into seconds.
-    return scaledGCD / kGreatestCommonDivisorPrecision;
+    return (double)scaledGCD / kGreatestCommonDivisorPrecision;
 }
 
 
@@ -306,11 +307,14 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
             [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
         }
 
-        // Note: The display link's `.frameInterval` value of 1 (default) means getting callbacks at the refresh rate of the display (~60Hz).
-        // Setting it to 2 divides the frame rate by 2 and hence calls back at every other display refresh.
-        const NSTimeInterval kDisplayRefreshRate = 60.0; // 60Hz
-        self.displayLink.frameInterval = MAX([self frameDelayGreatestCommonDivisor] * kDisplayRefreshRate, 1);
-
+        if (@available(iOS 10, *)) {
+            // Adjusting preferredFramesPerSecond allows us to skip unnecessary calls to displayDidRefresh: when showing GIFs
+            // that don't animate quickly. Use ceil to err on the side of too many FPS so we don't miss a frame transition moment.
+            self.displayLink.preferredFramesPerSecond = ceil(1.0 / [self frameDelayGreatestCommonDivisor]);
+        } else {
+            const NSTimeInterval kDisplayRefreshRate = 60.0; // 60Hz
+            self.displayLink.frameInterval = MAX([self frameDelayGreatestCommonDivisor] * kDisplayRefreshRate, 1);
+        }
         self.displayLink.paused = NO;
     } else {
         [super startAnimating];
@@ -395,7 +399,11 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
                 self.needsDisplayWhenImageBecomesAvailable = NO;
             }
             
-            self.accumulator += displayLink.duration * displayLink.frameInterval;
+            if (@available(iOS 10, *)) {
+                self.accumulator += displayLink.targetTimestamp - CACurrentMediaTime();
+            } else {
+                self.accumulator += displayLink.duration * (NSTimeInterval)displayLink.frameInterval;
+            }
             
             // While-loop first inspired by & good Karma to: https://github.com/ondalabs/OLImageView/blob/master/OLImageView.m
             while (self.accumulator >= delayTime) {
@@ -422,7 +430,11 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
             FLLog(FLLogLevelDebug, @"Waiting for frame %lu for animated image: %@", (unsigned long)self.currentFrameIndex, self.animatedImage);
 #if defined(DEBUG) && DEBUG
             if ([self.debug_delegate respondsToSelector:@selector(debug_animatedImageView:waitingForFrame:duration:)]) {
-                [self.debug_delegate debug_animatedImageView:self waitingForFrame:self.currentFrameIndex duration:(NSTimeInterval)displayLink.duration * displayLink.frameInterval];
+                if (@available(iOS 10, *)) {
+                    [self.debug_delegate debug_animatedImageView:self waitingForFrame:self.currentFrameIndex duration:displayLink.targetTimestamp - CACurrentMediaTime()];
+                } else {
+                    [self.debug_delegate debug_animatedImageView:self waitingForFrame:self.currentFrameIndex duration:displayLink.duration * (NSTimeInterval)displayLink.frameInterval];
+                }
             }
 #endif
         }
